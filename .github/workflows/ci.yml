@@ -14,7 +14,7 @@ jobs:
 
       - name: Install MoonBit toolchain
         run: |
-          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s 0.1.20260819
           echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
 
       - name: Install Python fixture tooling
@@ -37,8 +37,10 @@ jobs:
             exit 1
           fi
 
-      - name: Show toolchain version
-        run: moon version
+      # Pinned to the same version as benchmarks/CONFIG.md; installing
+      # "latest" is what let the toolchain drift between releases.
+      - name: Assert toolchain
+        run: moon version | grep -F '0.1.20260819'
 
       - name: Static check (native)
         run: moon check --target native
