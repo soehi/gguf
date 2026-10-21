@@ -24,8 +24,9 @@ version, the alignment, every metadata key/value, and the tensor directory
 performed here — the buffer comes from the caller, which is what lets this
 package work unchanged on a browser, where there is no filesystem.
 
-**Dequantization to f32.** Six block types are decoded: f32, f16, q4_0,
-q5_0, q8_0, q4_K, q6_K. Every kernel is a line-by-line transcription of the
+**Dequantization to f32.** Seven storage types are decoded (five block-quantized
+plus f32/f16): f32, f16, q4_0, q5_0, q8_0, q4_K, q6_K. Every kernel is a
+line-by-line transcription of the
 matching `dequantize_row_*` in llama.cpp's `ggml/src/ggml-quants.c`, with
 byte offsets taken from the `block_*` structs in `ggml/src/ggml-common.h`.
 The expected values in the golden tests were produced by an independent numpy
