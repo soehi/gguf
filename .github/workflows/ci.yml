@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    name: soehi/gguf (native + wasm-gc)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install MoonBit toolchain
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+
+      - name: Install Python fixture tooling
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install numpy
+        run: python -m pip install --disable-pip-version-check numpy
+
+      # The generator belongs to this module, so the fixtures it produces are
+      # this module's to keep in sync. Regenerating must leave them
+      # byte-identical; a diff means the generator was edited without being
+      # re-run.
+      - name: Verify generated fixtures are up to date
+        run: |
+          python tools/gen_fixtures.py
+          if ! git diff --exit-code -- src/gen_fixture_test.mbt src/tensor/gen_golden_test.mbt; then
+            echo "::error::generated fixtures are stale; run 'python tools/gen_fixtures.py' and commit the result"
+            exit 1
+          fi
+
+      - name: Show toolchain version
+        run: moon version
+
+      - name: Static check (native)
+        run: moon check --target native
+
+      - name: Static check (wasm-gc)
+        run: moon check --target wasm-gc
+
+      - name: Test (native)
+        run: moon test --target native
+
+      - name: Test (wasm-gc)
+        run: moon test --target wasm-gc
+
+      - name: Build (native)
+        run: moon build --target native
+
+      - name: Build (wasm-gc)
+        run: moon build --target wasm-gc

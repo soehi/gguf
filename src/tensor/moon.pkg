@@ -1,0 +1,4 @@
+// Tensor storage formats and dequantization for ggml block types.
+//
+// Pure MoonBit, no FFI, no third-party dependencies. Must build and test on
+// both `native` and `wasm-gc`.

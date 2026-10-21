@@ -1,0 +1,9 @@
+// GGUF container parsing: header, metadata key-values, tensor directory.
+//
+// Pure MoonBit, no FFI, no third-party dependencies. Must build and test on
+// both `native` and `wasm-gc`.
+
+import {
+  "moonbitlang/core/encoding/utf8",
+  "soehi/gguf/tensor",
+}
