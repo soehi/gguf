@@ -1,10 +1,10 @@
 name = "soehi/gguf"
 
-version = "0.1.0"
+version = "0.1.1"
 
 readme = "README.md"
 
-repository = "https://github.com/soehi/moonlm"
+repository = "https://github.com/soehi/gguf"
 
 license = "Apache-2.0"
 

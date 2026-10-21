@@ -81,13 +81,11 @@ generator without regenerating is caught rather than silently accumulating.
 
 ## Maintenance
 
-Maintained by **soehi** (the MoonLM author) until this module has an
-independent issue tracker.
+Maintained by **soehi** (the MoonLM author).
 
 - **Semver.** Breaking changes bump the major version. Within a major
   version, new dequantizable types and new metadata helpers are additive and
   land in a minor; bug fixes and error-message improvements land in a patch.
 - **Issues.** Please file them in the
-  [moonlm](https://github.com/soehi/moonlm) repository until this module gets
-  its own tracker. Prefix the title with `gguf:` so it can be found.
+  [gguf](https://github.com/soehi/gguf) repository.
 - **License.** Apache-2.0, same as MoonLM.
