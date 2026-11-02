@@ -12,9 +12,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Upstream serves no versioned toolchain artifacts: every
+      # /binaries/<version>/... path answers 403 and only /binaries/latest/
+      # resolves, so `bash -s <version>` fails inside install.sh's download.
+      # The installer is therefore run bare; the next step pins the floor.
       - name: Install MoonBit toolchain
         run: |
-          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s 0.1.20260819
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
           echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
 
       - name: Install Python fixture tooling
@@ -37,10 +41,28 @@ jobs:
             exit 1
           fi
 
-      # Pinned to the same version as benchmarks/CONFIG.md; installing
-      # "latest" is what let the toolchain drift between releases.
-      - name: Assert toolchain
-        run: moon version | grep -F '0.1.20260819'
+      # Since the installer can only fetch "latest", pin what actually matters
+      # as a floor instead of an exact string: an exact match goes red on every
+      # upstream release for no reason. Comparison is numeric, so 0.10.9 is
+      # correctly below 0.10.16 and a future 0.11 or 1.0 still passes.
+      # Last verified green: moon 0.1.20261028 / moonc v0.10.18.
+      - name: Assert MoonBit toolchain
+        run: |
+          moon version
+          moonc -v
+          got=$(moonc -v | sed -nE 's/^v([0-9]+\.[0-9]+\.[0-9]+).*/\1/p')
+          if [ -z "$got" ]; then
+            echo "::error::could not parse a version out of 'moonc -v'"
+            exit 1
+          fi
+          if ! awk -F. -v g="$got" 'BEGIN {
+                split(g, a, ".");
+                if (a[1] > 0 || a[2] > 10 || (a[2] == 10 && a[3] >= 16)) exit 0;
+                exit 1
+              }'; then
+            echo "::error::moonc >= 0.10.16 required, got v$got"
+            exit 1
+          fi
 
       - name: Static check (native)
         run: moon check --target native

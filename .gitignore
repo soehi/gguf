@@ -2,3 +2,8 @@ _build/
 target/
 .mooncakes/
 __pycache__/
+
+# `moon info` writes these into the source tree; they are tool output, not
+# source, and `moon publish` packs the directory as it stands (it does not
+# read .gitignore), so keeping them out of git also keeps them out of releases.
+*.generated.mbti
