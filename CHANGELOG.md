@@ -3,6 +3,12 @@
 Tags are vX.Y.Z on the commit whose moon.mod carries that version.
 Publish order: soehi/gguf -> soehi/moonlm -> soehi/edgeflow.
 
+## 0.1.3 — 2026-11-02
+
+- The install line no longer names a version: `moon add soehi/gguf` resolves the
+  latest release. 0.1.2 shipped a README that said `@0.1.1`, which is what the
+  mooncakes page rendered, so the page advertised a stale version.
+
 ## 0.1.2 — 2026-11-02
 
 - The README has an install line and a worked example: parse, read metadata,

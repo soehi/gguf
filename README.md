@@ -12,8 +12,12 @@ the tokenizer, or the agent runtime.
 ## Install
 
 ```bash
-moon add soehi/gguf@0.1.1
+moon add soehi/gguf
 ```
+
+`moon add` without a version resolves the latest release and pins it in your
+`moon.mod`. Pin explicitly (`moon add soehi/gguf@0.1.3`) when you need a
+reproducible dependency tree.
 
 ## Usage
 
