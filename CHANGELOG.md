@@ -3,6 +3,15 @@
 Tags are vX.Y.Z on the commit whose moon.mod carries that version.
 Publish order: soehi/gguf -> soehi/moonlm -> soehi/edgeflow.
 
+## 0.1.2 — 2026-11-02
+
+- The README has an install line and a worked example: parse, read metadata,
+  look up a tensor, take its payload or decoded floats.
+- CI installs the "latest" toolchain and asserts a `moonc` floor. Every
+  versioned toolchain path answers 403, so the previous `bash -s <version>`
+  install could not download anything and the job failed before its first
+  check.
+
 ## 0.1.1 — 2026-10-21
 
 - `repository` now points at this module's own repository
