@@ -9,6 +9,75 @@ can be reused on its own: anything that needs to open a GGUF and get floats
 out of it can depend on this module without also taking the inference engine,
 the tokenizer, or the agent runtime.
 
+## Install
+
+```bash
+moon add soehi/gguf@0.1.1
+```
+
+## Usage
+
+The module does no file I/O: you hand it a `Bytes` and it hands back metadata
+and numbers. That is what lets the same code run in a browser.
+
+```moonbit
+fn inspect(buf : Bytes) -> Unit {
+  // parse with full metadata when you need the vocabulary; plain `parse`
+  // summarizes large arrays (a 100k-entry token list) instead of materializing.
+  let file = match @gguf.parse(buf) {
+    Ok(f) => f
+    Err(e) => {
+      println("parse failed: \{e.message()}")
+      return
+    }
+  }
+  // Metadata is typed, by key: get_string / get_int / get_double / get.
+  let arch = file.get_string("general.architecture")   // String?
+  println(arch.unwrap_or("unknown"))
+
+  // Tensor lookup is an Option, not a Result.
+  let idx = match file.index_of_tensor("blk.0.attn_q.weight") {
+    Some(i) => i
+    None => {
+      println("no such tensor")
+      return
+    }
+  }
+  let info = file.tensors[idx]
+  println("dims: \{info.n_dims()}, dequantizable: \{info.is_dequantizable()}")
+
+  // Raw payload (owned copy), or decoded floats. Both are Result; an
+  // unsupported storage type is an Err that names the type.
+  let raw = match file.tensor_bytes(idx) {
+    Ok(b) => b
+    Err(e) => {
+      println("cannot read payload: \{e.message()}")
+      return
+    }
+  }
+  println("payload bytes: \{raw.length()}")
+  let vals = match file.dequant_tensor(idx) {
+    Ok(v) => v
+    Err(e) => {
+      println("cannot dequantize: \{e.message()}")
+      return
+    }
+  }
+  println("decoded floats: \{vals.length()}")
+}
+```
+
+Two details worth knowing up front:
+
+- `index_of_tensor` returns `Option[Int]`, while `tensor_bytes`,
+  `tensor_span` and `dequant_tensor` return `Result[_, GgufError]`. The error
+  carries the file offset where the problem was found.
+- `tensor_span` gives offsets into the buffer you already hold, so a caller
+  that keeps `buf` alive can avoid the copy `tensor_bytes` makes.
+- `dequant_tensor` returns `Err` (not a trap) for a storage type this build
+  does not decode, naming the type; `is_dequantizable()` on `TensorInfo` asks
+  the same question ahead of time.
+
 ## Packages
 
 | Import | What it holds |
